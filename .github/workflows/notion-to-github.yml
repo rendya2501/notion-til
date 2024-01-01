@@ -1,0 +1,56 @@
+name: Sync Notion with GitHub
+
+on:
+  schedule:
+    - cron: '0/10 * * * *'  # 毎時間実行
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16.x'
+          cache: yarn
+      # https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#authenticating-with-github-app-generated-tokens
+      - uses: tibdex/github-app-token@v1
+        id: generate-token
+        with:
+          app_id: ${{ secrets.WORKER_APP_ID }}
+          private_key: ${{ secrets.WORKER_APP_PRIVATE_KEY }}
+      - run: yarn install
+      - run: yarn notion:fetch
+        env:
+          NOTION_AUTH_TOKEN: ${{ secrets.NOTION_AUTH_TOKEN }}
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          commit-message: 'fix: apply changes from Notion'
+          branch: sync-with-notion
+          delete-branch: true
+          title: 'fix: apply changes from Notion'
+          body: '@lacolaco Review and apply changes from Notion'
+
+# jobs:
+#   sync:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout GitHub repository
+#         uses: actions/checkout@v2
+
+#       - name: Sync Notion changes
+#         run: |
+#           # Notion APIを使用してデータを取得し、必要な変換処理を行います
+#           # この部分はNotion APIとの連携に関するカスタムスクリプトが必要です
+
+#       - name: Commit and Push changes to GitHub
+#         run: |
+#           git config --local user.email "action@github.com"
+#           git config --local user.name "GitHub Action"
+#           git add .
+#           git commit -m "Update from Notion" -a || echo "No changes to commit"
+#           git push

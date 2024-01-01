@@ -1,2 +1,3 @@
-# notion_til
+# notion-til
+
 Notionのtil
