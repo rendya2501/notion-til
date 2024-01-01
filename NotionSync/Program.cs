@@ -8,7 +8,7 @@ var notionUrl = $"https://api.notion.com/v1/databases/{notionDatabaseId}/query";
 
 // GitHubの設定
 var githubToken = Environment.GetEnvironmentVariable("GITHUB_TOKEN");
-var githubRepo = Environment.GetEnvironmentVariable("GITHUB_REPOSITORY");
+var githubRepo = Environment.GetEnvironmentVariable("GIST_GITHUB_REPOSITORY");
 var githubApiUrl = $"https://api.github.com/repos/{githubRepo}/contents/";
 
 using (var httpClient = new HttpClient())
