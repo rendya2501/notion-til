@@ -13,13 +13,14 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v2
 
-    - name: Setup .NET Core
+    - name: Setup .NET 8
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '3.1'  # 必要な.NET Coreのバージョン
+        dotnet-version: '8.0'  # .NET バージョン
 
     - name: Install Dependencies
       run: dotnet restore
+      working-directory: ./NotionSync
 
     - name: Run Sync Script
       env:
@@ -28,7 +29,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GITHUB_REPOSITORY: ${{ github.repository }}
       run: dotnet run
-      
+      working-directory: ./NotionSync
+
 # jobs:
 #   sync:
 #     runs-on: ubuntu-latest
