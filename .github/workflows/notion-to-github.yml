@@ -10,30 +10,54 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '16.x'
-          cache: yarn
-      # https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#authenticating-with-github-app-generated-tokens
-      - uses: tibdex/github-app-token@v1
-        id: generate-token
-        with:
-          app_id: ${{ secrets.WORKER_APP_ID }}
-          private_key: ${{ secrets.WORKER_APP_PRIVATE_KEY }}
-      - run: yarn install
-      - run: yarn notion:fetch
-        env:
-          NOTION_AUTH_TOKEN: ${{ secrets.NOTION_AUTH_TOKEN }}
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v3
-        with:
-          token: ${{ steps.generate-token.outputs.token }}
-          commit-message: 'fix: apply changes from Notion'
-          branch: sync-with-notion
-          delete-branch: true
-          title: 'fix: apply changes from Notion'
-          body: '@lacolaco Review and apply changes from Notion'
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1'  # 必要な.NET Coreのバージョン
+
+    - name: Install Dependencies
+      run: dotnet restore
+
+    - name: Run Sync Script
+      env:
+        NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+        NOTION_DATABASE_ID: 'your-database-id'
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+      run: dotnet run
+      
+# jobs:
+#   sync:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - uses: actions/checkout@v2
+#       - uses: actions/setup-node@v2
+#         with:
+#           node-version: '16.x'
+#           cache: yarn
+#       # https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#authenticating-with-github-app-generated-tokens
+#       - uses: tibdex/github-app-token@v1
+#         id: generate-token
+#         with:
+#           app_id: ${{ secrets.WORKER_APP_ID }}
+#           private_key: ${{ secrets.WORKER_APP_PRIVATE_KEY }}
+#       - run: yarn install
+#       - run: yarn notion:fetch
+#         env:
+#           NOTION_AUTH_TOKEN: ${{ secrets.NOTION_AUTH_TOKEN }}
+#       - name: Create Pull Request
+#         uses: peter-evans/create-pull-request@v3
+#         with:
+#           token: ${{ steps.generate-token.outputs.token }}
+#           commit-message: 'fix: apply changes from Notion'
+#           branch: sync-with-notion
+#           delete-branch: true
+#           title: 'fix: apply changes from Notion'
+#           body: '@lacolaco Review and apply changes from Notion'
 
 # jobs:
 #   sync:
